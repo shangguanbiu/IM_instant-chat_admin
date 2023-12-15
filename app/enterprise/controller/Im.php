@@ -648,6 +648,7 @@ class Im extends BaseController
             $user->email =$data['email'];
             $user->motto=$data['motto'];
             $user->sex =$data['sex'];
+            $user->ages =$data['ages'];
             $user->name_py= pinyin_sentence($data['realname']);
             $user->save();
             return success('修改成功', $data);

@@ -3,7 +3,7 @@
 namespace app\enterprise\controller;
 
 use app\BaseController;
-use app\enterprise\model\{User,Group,Third as GroupModel,GroupUser,Message};
+use app\enterprise\model\{User,Group,Third as GroupModel,GroupUser,Message,Level};
 use think\Exception;
 use think\facade\Db;
 use app\common\controller\Upload;
@@ -22,6 +22,8 @@ class Third extends BaseController
          
          return success('', $list,$list->total(),$list->currentPage());
      }
+
+
       // 附近的人列表
       public function nearby_index(){
          $param = $this->request->param();
@@ -34,18 +36,74 @@ class Third extends BaseController
          
          return success('', $list,$list->total(),$list->currentPage());
      }
-// 公开的群列表
-public function open_group_list(){
-   $param = $this->request->param();
-   $map = [];
-   $map[]=['is_public','=',1];
-   
-   $data=[];
-   $model = new Group();
-   $list = $this->paginate($model->where($map)->order('group_id desc'));
-   
-   return success('', $list,$list->total(),$list->currentPage());
-}
+     // 喜欢我的TA列表
+     public function like_me_index(){
+      $param = $this->request->param();
+      $map = [];
+      $map[]=['ifta','=',1];
+      
+      $data=[];
+      $model = new User();
+      $list = $this->paginate($model->where($map)->order('user_id desc'));
+      
+      return success('', $list,$list->total(),$list->currentPage());
+  }
+      // 公开的群列表
+      public function open_group_list(){
+         $param = $this->request->param();
+         $map = [];
+         $map[]=['is_public','=',1];
+         
+         $data=[];
+         $model = new Group();
+         $list = $this->paginate($model->where($map)->order('group_id desc'));
+         
+         return success('', $list,$list->total(),$list->currentPage());
+      }
+      // 用户点击喜欢附近的人
+      public function islikes(){
+         $end=',';
+         $type = $this->request->param('type');
+         $user_id = $this->request->param('user_id');
+         $user_account = $this->request->param('user_account');
+         $user=User::where('user_id',$user_id)->find();
+         if($type==1){
+            $user->islikes=$user->islikes.$user_account.$end;
+         }else{
+            $user_had=$user->islikes.split(',');
+            foreach($user_had as $key => $value){
+                  if($value== $user_account){
+                     unset($user_had[$key]);
+                  };
+            };
+         }
+        
+
+         $user->save();
+         return success('','');
+         // $param = $this->request->param();
+         // $map = [];
+         // $map[]=['is_public','=',1];
+         
+         // $data=[];
+         // $model = new Group();
+         // $list = $this->paginate($model->where($map)->order('group_id desc'));
+         
+         // return success('', $list,$list->total(),$list->currentPage());
+      }
+
+        // 等级列表
+        public function Level_list(){
+         $param = $this->request->param();
+         $map = [];
+         $map[]=['status','=',1];
+         
+         $data=[];
+         $model = new Level();
+         $list = $this->paginate($model->where($map)->order('id asc'));
+         
+         return success('', $list,$list->total(),$list->currentPage());
+     }
 
 
    protected $setting=['manage' => 0, 'invite' => 1, 'nospeak' => 0];
@@ -126,6 +184,8 @@ public function open_group_list(){
 
    // 添加群成员
    public function addGroupUser(){
+      
+
       $param = $this->request->param();
       $uid=$this->userInfo['user_id'];
       $group_id = explode('-', $param['id'])[1];

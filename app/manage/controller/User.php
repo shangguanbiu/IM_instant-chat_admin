@@ -6,7 +6,7 @@
  */
 namespace app\manage\controller;
 use app\BaseController;
-use app\enterprise\model\{User as UserModel,GroupUser,Friend};
+use app\enterprise\model\{User as UserModel,GroupUser,Friend,Level};
 use app\manage\model\Config;
 use think\facade\Db;
 
@@ -17,6 +17,8 @@ class User extends BaseController
     {
         $map = [];
         $model=new UserModel();
+       
+
         $param = $this->request->param();
         //搜索关键词
         if ($keyword = $this->request->param('keywords')) {
@@ -24,13 +26,18 @@ class User extends BaseController
         }
         // 排序
         $order='user_id DESC';
+        $order_level='id DESC';
         if ($param['order_field'] ?? '') {
             $order = orderBy($param['order_field'],$param['order_type'] ?? 1);
+           
         }
         $list = $this->paginate($model->where($map)->order($order));
+       
         if ($list) {
             $data = $list->toArray()['data'];
+           
             foreach($data as $k=>$v){
+                
                 $data[$k]['avatar']=avatarUrl($v['avatar'],$v['realname'],$v['user_id'],120);
                 $data[$k]['location']=$v['last_login_ip'] ? implode(" ", \Ip::find($v['last_login_ip'])) : '--';
                 $data[$k]['reg_location']=$v['register_ip'] ? implode(" ", \Ip::find($v['register_ip'])) : '--';
@@ -56,10 +63,14 @@ class User extends BaseController
             $data['salt'] =$salt;
             $data['register_ip'] =$this->request->ip();
             $data['name_py'] = pinyin_sentence($data['realname']);
+           
+
+            
             $user->save($data);
             $data['user_id']=$user->user_id;
             return success('添加成功', $data);
         }catch (\Exception $e){
+           
             return error('添加失败');
         }
     }
@@ -79,8 +90,16 @@ class User extends BaseController
             $user->realname =$data['realname'];
             $user->email =$data['email'];
             $user->remark=$data['remark'];
+            $user->motto=$data['motto'];
             $user->sex =$data['sex'];
             $user->ifpublic =$data['ifpublic'];
+            $user->ifta =$data['ifta'];
+            $user->tags =$data['tags'];
+            $user->islevel =$data['islevel'];
+            $user->islikes =$data['islikes'];
+            $user->nearby_img =$data['nearby_img'];
+            $user->nearby_arr =$data['nearby_arr'];
+            $user->ages =$data['ages'];
             // 只有超管才能设置管理员
             if($this->userInfo['user_id']==1){
                 $user->role =$data['role'];

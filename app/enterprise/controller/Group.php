@@ -107,6 +107,7 @@ class Group extends BaseController
                'role'=>3,
                'invite_id'=>$uid
                
+               
             ];
          }
          $groupUser=new GroupUser;
@@ -166,7 +167,8 @@ class Group extends BaseController
                'name'=>"群聊",
                'name_py'=>"qunliao",
                'setting'=>json_encode($setting),
-               'is_public'=>$param['ifpublic']
+               'is_public'=>$param['ifpublic'],
+               'desc_v'=>$param['desc']
             ];
             $name=$param['name'] ?? '';
             if($name){

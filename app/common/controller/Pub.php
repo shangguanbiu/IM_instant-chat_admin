@@ -92,6 +92,7 @@ class Pub
             unset($userInfo['password'],$userInfo['salt']);
             $userInfo['displayName']=$userInfo['realname'];
             $userInfo['id']=$userInfo['user_id'];
+            $userInfo['islikes']=$userInfo['islikes'];
             $authToken=User::refreshToken($userInfo,$param['terminal'] ?? 'web');
             $data=[
                 'sessionId'=>Session::getId(),
