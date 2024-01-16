@@ -3,13 +3,48 @@
 namespace app\enterprise\controller;
 
 use app\BaseController;
-use app\enterprise\model\{User,Group,Third as GroupModel,GroupUser,Message,Level};
+use app\enterprise\model\{User,Group,Third as GroupModel,GroupUser,Message,Level,Talk,Shop};
 use think\Exception;
 use think\facade\Db;
 use app\common\controller\Upload;
 
 class Third extends BaseController
 {  
+    // 获取商品列表
+    public function shop_list(){
+      $param = $this->request->param();
+      $map = [];
+      $map[]=['type_id','=',$param['type_id']];
+      $map[]=['status','=',1];
+      $data=[];
+      $model = new Shop();
+      $list = $this->paginate($model->where($map)->order('id desc'));
+      
+      return success('', $list,$list->total(),$list->currentPage());
+  }
+    // 添加打招呼记录
+    public function add_talk()
+    {
+        try{
+            $data = $this->request->param();
+            $talk=new Talk();
+            
+            // $salt=\utils\Str::random(4);
+            // $data['password'] = password_hash_tp($data['password'],$salt);
+            // $data['salt'] =$salt;
+            // $data['register_ip'] =$this->request->ip();
+            // $data['name_py'] = pinyin_sentence($data['realname']);
+            
+            $talk->save($data);
+           
+            return success('添加成功', $data);
+        }catch (\Exception $e){
+           
+            //echo 'ssss'.$e;
+            return error('添加失败');
+        }
+    }
+
        // 第三方列表
        public function index(){
          $param = $this->request->param();
@@ -23,17 +58,28 @@ class Third extends BaseController
          return success('', $list,$list->total(),$list->currentPage());
      }
 
-
+     // 获取用户信息
+     public function user_info(){
+      $param = $this->request->param();
+      $map = [];
+      $map[]=['user_id','=',$param['user_id']];
+      
+      $data=[];
+      $model = new User();
+      $list = $this->paginate($model->where($map)->order('user_id desc'));
+      
+      return success('', $list);
+  }
       // 附近的人列表
       public function nearby_index(){
          $param = $this->request->param();
          $map = [];
          $map[]=['ifpublic','=',1];
-         
+         $map[]=['status','=',1];
+         $map[]=['agent_id','=',$param['agent_id']];
          $data=[];
          $model = new User();
          $list = $this->paginate($model->where($map)->order('user_id desc'));
-         
          return success('', $list,$list->total(),$list->currentPage());
      }
      // 喜欢我的TA列表
@@ -41,7 +87,12 @@ class Third extends BaseController
       $param = $this->request->param();
       $map = [];
       $map[]=['ifta','=',1];
+      $map[]=['status','=',1];
+      if($param['agent_id']!==''){
+         $map[]=['agent_id','=',$param['agent_id']];
+      }
       
+
       $data=[];
       $model = new User();
       $list = $this->paginate($model->where($map)->order('user_id desc'));
@@ -263,7 +314,8 @@ class Third extends BaseController
                'name'=>"群聊",
                'name_py'=>"qunliao",
                'setting'=>json_encode($setting),
-               'is_public'=>$param['ifpublic']
+               'is_public'=>$param['ifpublic'],
+               'is_number'=>$param['is_number'],
             ];
             $name=$param['name'] ?? '';
             if($name){
@@ -305,6 +357,7 @@ class Third extends BaseController
                'index'=>"[2]群聊",
                'is_notice'=>1,
                'is_top'=>0,
+               'is_number'=>$param['is_number'],
                'setting'=>$setting,
                
             ];

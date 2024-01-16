@@ -59,13 +59,14 @@ public function add()
             $user=new LevelModel();
             $user=LevelModel::find($data['id']);
             $user->name =$data['name'];
-            $user->islike =$data['islike'];
-            $user->ishello =$data['ishello'];
+            $user->iszan =$data['iszan'];
+            $user->istalk =$data['istalk'];
             $user->remark=$data['remark'];
             $user->status =$data['status'];
             $user->istype =$data['istype'];
             $user->price =$data['price'];
             $user->isview =$data['isview'];
+            $user->isgroup =$data['isgroup'];
             
             $user->save();
             return success('修改成功', $data);

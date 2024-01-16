@@ -63,12 +63,49 @@ class Friend extends BaseController
         $model = new FriendModel();
         $data=[
             'friend_user_id'=>$user_id,
-            'status'=>$status,
+            'status'=>1,//$status
             'create_user'=>$this->uid,
             'remark'=>$param['remark'],
             'is_invite'=>1 // 是否为发起方
         ];
+        // $data2=[
+        //     'friend_user_id'=>$this->uid,
+        //     'status'=>1,//$status
+        //     'create_user'=>$user_id,
+        //     'remark'=>'',
+        //     'is_invite'=>0 // 是否为发起方
+        // ];
         $model->save($data);
+       
+        $map=[
+            'friend_id'=>$user_id
+        ];
+        FriendModel::where($map)->update(['status'=>1]);
+        $data2=[
+            'friend_user_id'=>$this->uid,
+            'create_user'=>$user_id,
+        ];
+        $newFriend=FriendModel::where($data2)->find();
+        if($newFriend){
+            FriendModel::where($data2)->update(['status'=>1]);
+            return success('你们已经是好友了');
+        }else{
+            $data2['status']=1;
+            
+            FriendModel::create($data2);
+        }
+        // 将对方的信息发送给我，把我的信息发送对方
+        $user=User::setContact($this->uid);
+        if($user){
+            wsSendMsg($user_id,'appendContact',$user);
+        }
+        $myInfo=User::setContact($user_id);
+        if($myInfo){
+            wsSendMsg($this->uid,'appendContact',$myInfo);
+        }
+
+
+
         $msg=[
             'fromUser'=>[
                 'id'=>'system',
@@ -78,7 +115,7 @@ class Friend extends BaseController
             'toContactId'=>'system',
             'id'=>uniqid(),
             'is_group'=>2,
-            'content'=>"添加您为好友",
+            'content'=>"和你打了招呼",//添加您为好友
             'status'=>'succeed',
             'sendTime'=>time()*1000,
             'type'=>'event',

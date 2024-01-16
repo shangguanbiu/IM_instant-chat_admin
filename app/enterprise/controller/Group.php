@@ -145,6 +145,7 @@ class Group extends BaseController
       // 添加群聊
       public function add(){
          $param = $this->request->param();
+         
          $uid=$this->userInfo['user_id'];
          $user_ids=$param['user_ids'];
          if($this->chatSetting['groupChat']==0){
@@ -168,6 +169,7 @@ class Group extends BaseController
                'name_py'=>"qunliao",
                'setting'=>json_encode($setting),
                'is_public'=>$param['ifpublic'],
+               'is_number'=>$param['is_number'],
                'desc_v'=>$param['desc']
             ];
             $name=$param['name'] ?? '';
@@ -211,7 +213,7 @@ class Group extends BaseController
                'is_notice'=>1,
                'is_top'=>0,
                'setting'=>$setting,
-               
+               'is_number'=>$param['is_number'],
             ];
             Message::create([
                'from_user'=>$uid,

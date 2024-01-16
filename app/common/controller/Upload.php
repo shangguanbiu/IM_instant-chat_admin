@@ -193,6 +193,35 @@ class Upload extends BaseController
             return error($e->getMessage());
         }
     }
+// 上传封面图
+public function uploadAvatar_fengmian(){
+    $param=request::param();
+    try{
+        $file=request()->file('file');
+        $uid=request()->userInfo['user_id'];
+        $info=$this->upload($param,$file,'avatar/'.$uid.'/');
+        User::where(['user_id'=>$uid])->update(['nearby_img'=>$info['src']]);
+        $url=$this->url.$info['src'];
+        return success("上传成功",$url);
+    } catch(\Exception $e) {
+        return error($e->getMessage());
+    }
+}
+// 上传详情图
+public function uploadAvatar_detail(){
+    $param=request::param();
+    try{
+        $file=request()->file('file');
+        $uid=request()->userInfo['user_id'];
+        $info=$this->upload($param,$file,'avatar/'.$uid.'/');
+        User::where(['user_id'=>$uid])->update(['nearby_img_com'=>$info['src']]);
+        $url=$this->url.$info['src'];
+        return success("上传成功",$url);
+    } catch(\Exception $e) {
+        return error($e->getMessage());
+    }
+}
+
 
     // 服务器上传头像
     public function uploadLocalAvatar($file,$param,$uid){

@@ -238,6 +238,7 @@ class Im extends BaseController
                     'id' => $v['id'],
                     'status' => "succeed",
                     'type' => $v['type'],
+                    'icon_vip'=>$fromUser['icon_vip'],
                     'sendTime' => $v['create_time'] * 1000,
                     'content' => $content,
                     'preview' => $preview,
@@ -650,6 +651,22 @@ class Im extends BaseController
             $user->sex =$data['sex'];
             $user->ages =$data['ages'];
             $user->name_py= pinyin_sentence($data['realname']);
+            $user->save();
+            return success('修改成功', $data);
+        }catch (\Exception $e){
+            return error($e->getMessage());
+        }
+    }
+     // 修改用户信息-imgarr
+     public function updateUserInfo_imgarr(){
+        try{
+            $data = $this->request->param();
+            $user=User::find($this->uid);
+            if(!$user){
+                return warning('用户不存在');
+            }
+            $user->nearby_arr =$data['nearby_arr'];
+            
             $user->save();
             return success('修改成功', $data);
         }catch (\Exception $e){
